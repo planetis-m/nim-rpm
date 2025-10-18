@@ -42,7 +42,7 @@ mkdir -p %{buildroot}%{_libdir}/nimony/bin
 mkdir -p %{buildroot}%{_datadir}/nimony
 
 # Install binaries to /usr/lib/nimony/bin
-install -Dm 755 nimony/bin/* -t %{buildroot}%{_libdir}/nimony/bin
+install -Dm 755 bin/* -t %{buildroot}%{_libdir}/nimony/bin
 
 # Create symlinks in /usr/bin
 ln -sf %{_libdir}/nimony/bin/hexer   %{buildroot}%{_bindir}/hexer
@@ -53,10 +53,10 @@ ln -sf %{_libdir}/nimony/bin/nimony  %{buildroot}%{_bindir}/nimony
 ln -sf %{_libdir}/nimony/bin/nimsem  %{buildroot}%{_bindir}/nimsem
 
 # Install components
-cp -R nimony/lib %{buildroot}%{_libdir}/nimony/
-cp -R nimony/vendor %{buildroot}%{_libdir}/nimony/
-cp -R nimony/tools %{buildroot}%{_libdir}/nimony/
-cp -R nimony/doc %{buildroot}%{_datadir}/nimony/
+cp -R lib %{buildroot}%{_libdir}/nimony/
+cp -R vendor %{buildroot}%{_libdir}/nimony/
+cp -R tools %{buildroot}%{_libdir}/nimony/
+cp -R doc %{buildroot}%{_datadir}/nimony/
 
 %files
 %license license.txt
