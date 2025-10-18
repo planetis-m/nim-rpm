@@ -6,6 +6,8 @@ Summary:        Nimony compiler and toolchain (development version)
 License:        MIT
 URL:            https://github.com/nim-lang/nimony
 Source0:        https://github.com/nim-lang/nimony/archive/refs/heads/master.tar.gz#/nimony-master-%{version}.tar.gz
+Source1:        https://github.com/nim-lang/mimalloc/archive/refs/heads/master.tar.gz#/mimalloc-master.tar.gz
+Source2:        https://github.com/nim-lang/errorcodes/archive/refs/heads/master.tar.gz#/errorcodes-master.tar.gz
 
 BuildRequires:  nim
 BuildRequires:  gcc
@@ -21,6 +23,9 @@ Nimony is a new Nim implementation that is in heavy development.
 
 %prep
 %autosetup -n nimony-master
+# Extract submodules manually
+tar -xzf %{SOURCE1} -C vendor/mimalloc --strip-components=1
+tar -xzf %{SOURCE2} -C vendor/errorcodes --strip-components=1
 
 # Initialize git repo for hastur build script
 git init
@@ -28,8 +33,6 @@ git config user.email "build@copr"
 git config user.name "COPR Build"
 git add .
 git commit -m "Initial commit for build"
-
-# Fetch git submodules manually since we're building from tarball
 # The hastur script expects git submodules to be present
 git submodule init
 
