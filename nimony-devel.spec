@@ -60,11 +60,19 @@ ln -sf ../%{_lib}/nimony/bin/nimsem  %{buildroot}%{_bindir}/nimsem
 
 # Install components
 cp -R lib %{buildroot}%{_libdir}/nimony/
-cp -R vendor %{buildroot}%{_libdir}/nimony/
 cp -R tools %{buildroot}%{_libdir}/nimony/
 cp -R doc %{buildroot}%{_datadir}/nimony/
 
-find %{buildroot}%{_libdir}/nimony/vendor -type f \( -name '*.dll' -o -name '*.lib' -o -name '*.exe' \) -delete
+# Install vendor - only copy what's needed
+mkdir -p %{buildroot}%{_libdir}/nimony/vendor/mimalloc
+mkdir -p %{buildroot}%{_libdir}/nimony/vendor/errorcodes
+
+cp -R vendor/mimalloc/src %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
+cp -R vendor/mimalloc/include %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
+cp vendor/mimalloc/LICENSE %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
+
+cp -R vendor/errorcodes/src %{buildroot}%{_libdir}/nimony/vendor/errorcodes/
+cp vendor/errorcodes/LICENSE %{buildroot}%{_libdir}/nimony/vendor/errorcodes/
 
 %files
 %license license.txt
