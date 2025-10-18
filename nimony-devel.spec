@@ -13,6 +13,9 @@ BuildRequires:  git
 
 Requires:       gcc
 
+# Disable debuginfo package since Nim binaries don't have standard debug symbols
+%global debug_package %{nil}
+
 %description
 Nimony is a new Nim implementation that is in heavy development.
 
@@ -45,12 +48,12 @@ mkdir -p %{buildroot}%{_datadir}/nimony
 install -Dm 755 bin/* -t %{buildroot}%{_libdir}/nimony/bin
 
 # Create symlinks in /usr/bin
-ln -sf %{_libdir}/nimony/bin/hexer   %{buildroot}%{_bindir}/hexer
-ln -sf %{_libdir}/nimony/bin/nifc    %{buildroot}%{_bindir}/nifc
-ln -sf %{_libdir}/nimony/bin/nifler  %{buildroot}%{_bindir}/nifler
-ln -sf %{_libdir}/nimony/bin/nifmake %{buildroot}%{_bindir}/nifmake
-ln -sf %{_libdir}/nimony/bin/nimony  %{buildroot}%{_bindir}/nimony
-ln -sf %{_libdir}/nimony/bin/nimsem  %{buildroot}%{_bindir}/nimsem
+ln -sf ../%{_lib}/nimony/bin/hexer   %{buildroot}%{_bindir}/hexer
+ln -sf ../%{_lib}/nimony/bin/nifc    %{buildroot}%{_bindir}/nifc
+ln -sf ../%{_lib}/nimony/bin/nifler  %{buildroot}%{_bindir}/nifler
+ln -sf ../%{_lib}/nimony/bin/nifmake %{buildroot}%{_bindir}/nifmake
+ln -sf ../%{_lib}/nimony/bin/nimony  %{buildroot}%{_bindir}/nimony
+ln -sf ../%{_lib}/nimony/bin/nimsem  %{buildroot}%{_bindir}/nimsem
 
 # Install components
 cp -R lib %{buildroot}%{_libdir}/nimony/
