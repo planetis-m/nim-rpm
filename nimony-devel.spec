@@ -19,6 +19,17 @@ Nimony is a new Nim implementation that is in heavy development.
 %prep
 %autosetup -n nimony-master
 
+# Initialize git repo for hastur build script
+git init
+git config user.email "build@copr"
+git config user.name "COPR Build"
+git add .
+git commit -m "Initial commit for build"
+
+# Fetch git submodules manually since we're building from tarball
+# The hastur script expects git submodules to be present
+git submodule init || true
+
 %build
 # Build all components using hastur
 nim c -r src/hastur build all
