@@ -31,11 +31,13 @@ git commit -m "Initial commit for build"
 
 # Fetch git submodules manually since we're building from tarball
 # The hastur script expects git submodules to be present
-git submodule init || true
+git submodule init
 
 %build
 # Build all components using hastur
 nim c -r src/hastur build all
+
+ls vendor/errorcodes
 
 %install
 # Create directory structure
