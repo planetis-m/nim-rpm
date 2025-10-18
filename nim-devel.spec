@@ -60,15 +60,15 @@ mkdir -p %{buildroot}%{_datadir}/zsh/site-functions
 install -Dm 755 nim-%{version}/bin/* -t %{buildroot}%{_libdir}/nim/bin
 
 # Create symlinks in /usr/bin
-ln -sf %{_libdir}/nim/bin/atlas %{buildroot}%{_bindir}/atlas
-ln -sf %{_libdir}/nim/bin/nim %{buildroot}%{_bindir}/nim
-ln -sf %{_libdir}/nim/bin/nimble %{buildroot}%{_bindir}/nimble
-ln -sf %{_libdir}/nim/bin/nim_dbg %{buildroot}%{_bindir}/nim_dbg
-ln -sf %{_libdir}/nim/bin/nim-gdb %{buildroot}%{_bindir}/nim-gdb
-ln -sf %{_libdir}/nim/bin/nimgrep %{buildroot}%{_bindir}/nimgrep
-ln -sf %{_libdir}/nim/bin/nimpretty %{buildroot}%{_bindir}/nimpretty
-ln -sf %{_libdir}/nim/bin/nimsuggest %{buildroot}%{_bindir}/nimsuggest
-ln -sf %{_libdir}/nim/bin/testament %{buildroot}%{_bindir}/testament
+ln -sf ../%{_lib}/nim/bin/atlas %{buildroot}%{_bindir}/atlas
+ln -sf ../%{_lib}/nim/bin/nim %{buildroot}%{_bindir}/nim
+ln -sf ../%{_lib}/nim/bin/nimble %{buildroot}%{_bindir}/nimble
+ln -sf ../%{_lib}/nim/bin/nim_dbg %{buildroot}%{_bindir}/nim_dbg
+ln -sf ../%{_lib}/nim/bin/nim-gdb %{buildroot}%{_bindir}/nim-gdb
+ln -sf ../%{_lib}/nim/bin/nimgrep %{buildroot}%{_bindir}/nimgrep
+ln -sf ../%{_lib}/nim/bin/nimpretty %{buildroot}%{_bindir}/nimpretty
+ln -sf ../%{_lib}//nim/bin/nimsuggest %{buildroot}%{_bindir}/nimsuggest
+ln -sf ../%{_lib}/nim/bin/testament %{buildroot}%{_bindir}/testament
 
 # Install library files
 cp -R nim-%{version}/lib %{buildroot}%{_libdir}/nim/
