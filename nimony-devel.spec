@@ -34,13 +34,11 @@ git config user.name "COPR Build"
 git add .
 git commit -m "Initial commit for build"
 # The hastur script expects git submodules to be present
-git submodule init
+git submodule init || true
 
 %build
 # Build all components using hastur
 nim c -r src/hastur build all
-
-ls vendor/errorcodes
 
 %install
 # Create directory structure
@@ -65,6 +63,8 @@ cp -R lib %{buildroot}%{_libdir}/nimony/
 cp -R vendor %{buildroot}%{_libdir}/nimony/
 cp -R tools %{buildroot}%{_libdir}/nimony/
 cp -R doc %{buildroot}%{_datadir}/nimony/
+
+find %{buildroot}%{_libdir}/nimony/vendor -type f \( -name '*.dll' -o -name '*.lib' -o -name '*.exe' \) -delete
 
 %files
 %license license.txt
