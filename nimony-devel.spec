@@ -1,11 +1,11 @@
-Name:           nimony
+Name:           nimony-devel
 Version:        0.1.0
 Release:        1%{?dist}
-Summary:        Nimony compiler and toolchain
+Summary:        Nimony compiler and toolchain (development version)
 
 License:        MIT
 URL:            https://github.com/nim-lang/nimony
-Source0:        https://github.com/nim-lang/nimony/archive/refs/heads/devel.tar.gz
+Source0:        https://github.com/nim-lang/nimony/archive/refs/heads/master.tar.gz#/nimony-master-%{version}.tar.gz
 
 BuildRequires:  nim
 BuildRequires:  gcc
@@ -14,12 +14,10 @@ BuildRequires:  git
 Requires:       gcc
 
 %description
-Nimony is a modern compiler and toolchain for the Nim programming language.
-It includes various tools like nifc, nifler, nifmake, and others for
-working with NIF (Nim Intermediate Format) files.
+Nimony is a new Nim implementation that is in heavy development.
 
 %prep
-%setup -q -n nimony-devel
+%autosetup -n nimony-master
 
 %build
 # Build all components using hastur
@@ -50,7 +48,7 @@ cp -R nimony/tools %{buildroot}%{_libdir}/nimony/
 cp -R nimony/doc %{buildroot}%{_datadir}/nimony/
 
 %files
-%license LICENSE
+%license license.txt
 %doc README.md
 %{_bindir}/hexer
 %{_bindir}/nifc
@@ -62,6 +60,6 @@ cp -R nimony/doc %{buildroot}%{_datadir}/nimony/
 %{_datadir}/nimony
 
 %changelog
-* Sat Oct 18 2025 planetis-m <planetis@example.com> - 0.1.0-1
-- Initial package build from git
+* Sat Jan 18 2025 planetis-m <planetis@example.com> - 0.1.0-1
+- Initial package build from git master branch
 - Added nim build dependency from COPR
