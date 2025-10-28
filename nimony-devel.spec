@@ -64,10 +64,10 @@ cp -R tools %{buildroot}%{_libdir}/nimony/
 cp -R doc %{buildroot}%{_datadir}/nimony/
 
 mkdir -p %{buildroot}%{_libdir}/nimony/src
-cp -R src/lib %{buildroot}%{_datadir}/nimony/src
-cp -R src/models %{buildroot}%{_datadir}/nimony/src
+cp -R src/lib %{buildroot}%{_libdir}/nimony/src
+cp -R src/models %{buildroot}%{_libdir}/nimony/src
 mkdir -p %{buildroot}%{_libdir}/nimony/src/nimony
-cp -R src/nimony/lib %{buildroot}%{_datadir}/nimony/src/nimony
+cp -R src/nimony/lib %{buildroot}%{_libdir}/nimony/src/nimony
 
 # Install vendor - only copy what's needed
 mkdir -p %{buildroot}%{_libdir}/nimony/vendor/mimalloc
