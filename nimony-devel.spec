@@ -67,6 +67,7 @@ mkdir -p %{buildroot}%{_libdir}/nimony/src
 cp -R src/lib %{buildroot}%{_libdir}/nimony/src
 cp -R src/models %{buildroot}%{_libdir}/nimony/src
 mkdir -p %{buildroot}%{_libdir}/nimony/src/nimony
+cp src/nimony/nimony_model.nim %{buildroot}%{_libdir}/nimony/src/nimony/
 cp -R src/nimony/lib %{buildroot}%{_libdir}/nimony/src/nimony
 
 # Install vendor - only copy what's needed
