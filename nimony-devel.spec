@@ -1,5 +1,5 @@
 Name:           nimony-devel
-Version:        0.1.0
+Version:        0.2.0
 Release:        1%{?dist}
 Summary:        Nimony compiler and toolchain (development version)
 
@@ -63,6 +63,7 @@ cp -R lib %{buildroot}%{_libdir}/nimony/
 cp -R tools %{buildroot}%{_libdir}/nimony/
 cp -R doc %{buildroot}%{_datadir}/nimony/
 
+# Install compiler plugins
 mkdir -p %{buildroot}%{_libdir}/nimony/src
 cp -R src/lib %{buildroot}%{_libdir}/nimony/src
 cp -R src/models %{buildroot}%{_libdir}/nimony/src
