@@ -3,8 +3,8 @@
 
 Summary: A statically typed compiled systems programming language
 Name: nim
-Version: 2.2.5
-Release: 1%{?dist}
+Version: 2.2.7
+Release: %autorelease
 License: MIT
 Group: Development/Languages
 
