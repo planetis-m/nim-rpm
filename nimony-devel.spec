@@ -1,6 +1,6 @@
 Name:           nimony-devel
 Version:        0.2.0
-Release:        1%{?dist}
+Release:        %autorelease
 Summary:        Nimony compiler and toolchain (development version)
 
 License:        MIT

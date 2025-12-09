@@ -6,7 +6,7 @@
 Summary: A statically typed compiled systems programming language (development version)
 Name: nim-devel
 Version: 2.3.1
-Release: 1.%{date}%{?dist}
+Release: %autorelease
 License: MIT
 Group: Development/Languages
 
