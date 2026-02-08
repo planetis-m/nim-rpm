@@ -1,5 +1,10 @@
+%global debug_package %{nil}
+%global _build_id_links none
+
+%define date %(date +%Y%m%d)
+
 Name:           nimony-devel
-Version:        0.2.0
+Version:        0.2.0~devel.%{date}
 Release:        %autorelease
 Summary:        Nimony compiler and toolchain (development version)
 
@@ -14,9 +19,6 @@ BuildRequires:  gcc
 BuildRequires:  git
 
 Requires:       gcc
-
-# Disable debuginfo package since Nim binaries don't have standard debug symbols
-%global debug_package %{nil}
 
 %description
 Nimony is a new Nim implementation that is in heavy development.
@@ -95,6 +97,4 @@ cp vendor/errorcodes/LICENSE %{buildroot}%{_libdir}/nimony/vendor/errorcodes/
 %{_datadir}/nimony
 
 %changelog
-* Sat Jan 18 2025 planetis-m <planetis@example.com> - 0.1.0-1
-- Initial package build from git master branch
-- Added nim build dependency from COPR
+%autochangelog
