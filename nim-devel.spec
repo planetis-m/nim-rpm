@@ -5,7 +5,7 @@
 
 Summary: A statically typed compiled systems programming language (development version)
 Name: nim-devel
-Version: 2.3.1
+Version: 2.3.1~devel.%{date}
 Release: %autorelease
 License: MIT
 Group: Development/Languages
@@ -137,5 +137,4 @@ ln -sf %{_sysconfdir}/nim %{buildroot}%{_libdir}/nim/config
 %exclude %{_datadir}/nim/doc/html/compiler/*.idx
 
 %changelog
-* Mon Jan 01 2024 Packager <packager@example.com> - 2.3.1-1
-- Initial package
+%autochangelog
