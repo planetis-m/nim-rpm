@@ -3,7 +3,7 @@
 
 %define date %(date +%Y%m%d)
 
-Name:           nimony-devel
+Name:           nimony-git
 Version:        0.2.0~devel.%{date}
 Release:        %autorelease
 Summary:        Nimony compiler and toolchain (development version)
@@ -19,6 +19,8 @@ BuildRequires:  gcc
 BuildRequires:  git
 
 Requires:       gcc
+Provides:       nimony = %{version}-%{release}
+Conflicts:      nimony
 
 %description
 Nimony is a new Nim implementation that is in heavy development.
