@@ -4,7 +4,7 @@
 %define date %(date +%Y%m%d)
 
 Summary: A statically typed compiled systems programming language (development version)
-Name: nim-devel
+Name: nim-git
 Version: 2.3.1~devel.%{date}
 Release: %autorelease
 License: MIT
