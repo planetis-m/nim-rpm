@@ -2,10 +2,11 @@
 %global _build_id_links none
 
 %define date %(date +%Y%m%d)
+%define nim_version 2.3.1
 
 Summary: A statically typed compiled systems programming language (development version)
 Name: nim-git
-Version: 2.3.1~devel.%{date}
+Version: %{nim_version}~devel.%{date}
 Release: %autorelease
 License: MIT
 Group: Development/Languages
@@ -57,7 +58,7 @@ mkdir -p %{buildroot}%{_datadir}/bash-completion/completions
 mkdir -p %{buildroot}%{_datadir}/zsh/site-functions
 
 # Install binaries to /usr/lib/nim/bin
-install -Dm 755 nim-%{version}/bin/* -t %{buildroot}%{_libdir}/nim/bin
+install -Dm 755 nim-%{nim_version}/bin/* -t %{buildroot}%{_libdir}/nim/bin
 
 # Create symlinks in /usr/bin
 ln -sf ../%{_lib}/nim/bin/atlas %{buildroot}%{_bindir}/atlas
@@ -71,37 +72,37 @@ ln -sf ../%{_lib}/nim/bin/nimsuggest %{buildroot}%{_bindir}/nimsuggest
 ln -sf ../%{_lib}/nim/bin/testament %{buildroot}%{_bindir}/testament
 
 # Install library files
-cp -R nim-%{version}/lib %{buildroot}%{_libdir}/nim/
+cp -R nim-%{nim_version}/lib %{buildroot}%{_libdir}/nim/
 
 # Install config files to /etc/nim
-install -Dm 644 nim-%{version}/config/* -t %{buildroot}%{_sysconfdir}/nim
+install -Dm 644 nim-%{nim_version}/config/* -t %{buildroot}%{_sysconfdir}/nim
 
 # Install other Nim components
-cp -R nim-%{version}/compiler %{buildroot}%{_libdir}/nim/
-cp -R nim-%{version}/dist %{buildroot}%{_libdir}/nim/
-cp -R nim-%{version}/doc %{buildroot}%{_datadir}/nim/
+cp -R nim-%{nim_version}/compiler %{buildroot}%{_libdir}/nim/
+cp -R nim-%{nim_version}/dist %{buildroot}%{_libdir}/nim/
+cp -R nim-%{nim_version}/doc %{buildroot}%{_datadir}/nim/
 
 # Install nim.nimble to the compiler directory
-install -Dm 644 nim-%{version}/nim.nimble -t %{buildroot}%{_libdir}/nim/compiler
+install -Dm 644 nim-%{nim_version}/nim.nimble -t %{buildroot}%{_libdir}/nim/compiler
 
 # Install documentation files to proper location
-install -Dm 644 nim-%{version}/doc/nimdoc.css -t %{buildroot}%{_libdir}/nim/doc
-install -Dm 644 nim-%{version}/doc/nimdoc.cls -t %{buildroot}%{_libdir}/nim/doc
-install -Dm 644 nim-%{version}/doc/basicopt.txt -t %{buildroot}%{_libdir}/nim/doc
-install -Dm 644 nim-%{version}/doc/advopt.txt -t %{buildroot}%{_libdir}/nim/doc
-install -Dm 644 nim-%{version}/doc/grammar.txt -t %{buildroot}%{_libdir}/nim/doc
+install -Dm 644 nim-%{nim_version}/doc/nimdoc.css -t %{buildroot}%{_libdir}/nim/doc
+install -Dm 644 nim-%{nim_version}/doc/nimdoc.cls -t %{buildroot}%{_libdir}/nim/doc
+install -Dm 644 nim-%{nim_version}/doc/basicopt.txt -t %{buildroot}%{_libdir}/nim/doc
+install -Dm 644 nim-%{nim_version}/doc/advopt.txt -t %{buildroot}%{_libdir}/nim/doc
+install -Dm 644 nim-%{nim_version}/doc/grammar.txt -t %{buildroot}%{_libdir}/nim/doc
 
 # Install tools
-install -Dm 644 nim-%{version}/tools/debug/nim-gdb.py -t %{buildroot}%{_libdir}/nim/tools
-install -Dm 644 nim-%{version}/tools/dochack/dochack.nim -t %{buildroot}%{_libdir}/nim/tools/dochack
-install -Dm 644 nim-%{version}/tools/dochack/dochack.js -t %{buildroot}%{_libdir}/nim/tools/dochack
+install -Dm 644 nim-%{nim_version}/tools/debug/nim-gdb.py -t %{buildroot}%{_libdir}/nim/tools
+install -Dm 644 nim-%{nim_version}/tools/dochack/dochack.nim -t %{buildroot}%{_libdir}/nim/tools/dochack
+install -Dm 644 nim-%{nim_version}/tools/dochack/dochack.js -t %{buildroot}%{_libdir}/nim/tools/dochack
 
 # Install shell completions from tools directory
-for comp in nim-%{version}/tools/*.bash-completion; do
+for comp in nim-%{nim_version}/tools/*.bash-completion; do
   install -Dm 644 "${comp}" "%{buildroot}%{_datadir}/bash-completion/completions/$(basename "${comp%.bash-completion}")"
 done
 
-for comp in nim-%{version}/tools/*.zsh-completion; do
+for comp in nim-%{nim_version}/tools/*.zsh-completion; do
   install -Dm 644 "${comp}" "%{buildroot}%{_datadir}/zsh/site-functions/_$(basename "${comp%.zsh-completion}")"
 done
 
