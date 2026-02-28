@@ -42,7 +42,7 @@ git submodule init || true
 
 %build
 # Build all components using hastur
-nim c -r src/hastur build all
+nim c -r src/hastur build all --release
 
 %install
 # Create directory structure
