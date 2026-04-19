@@ -61,6 +61,7 @@ ln -sf ../%{_lib}/nimony/bin/nifler  %{buildroot}%{_bindir}/nifler
 ln -sf ../%{_lib}/nimony/bin/nifmake %{buildroot}%{_bindir}/nifmake
 ln -sf ../%{_lib}/nimony/bin/nimony  %{buildroot}%{_bindir}/nimony
 ln -sf ../%{_lib}/nimony/bin/nimsem  %{buildroot}%{_bindir}/nimsem
+ln -sf ../%{_lib}/nimony/bin/validator  %{buildroot}%{_bindir}/validator
 
 # Install components
 cp -R lib %{buildroot}%{_libdir}/nimony/
