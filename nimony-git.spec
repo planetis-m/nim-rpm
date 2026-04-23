@@ -55,13 +55,9 @@ mkdir -p %{buildroot}%{_datadir}/nimony
 install -Dm 755 bin/* -t %{buildroot}%{_libdir}/nimony/bin
 
 # Create symlinks in /usr/bin
-ln -sf ../%{_lib}/nimony/bin/hexer   %{buildroot}%{_bindir}/hexer
-ln -sf ../%{_lib}/nimony/bin/nifc    %{buildroot}%{_bindir}/nifc
 ln -sf ../%{_lib}/nimony/bin/nifler  %{buildroot}%{_bindir}/nifler
 ln -sf ../%{_lib}/nimony/bin/nifmake %{buildroot}%{_bindir}/nifmake
 ln -sf ../%{_lib}/nimony/bin/nimony  %{buildroot}%{_bindir}/nimony
-ln -sf ../%{_lib}/nimony/bin/nimsem  %{buildroot}%{_bindir}/nimsem
-ln -sf ../%{_lib}/nimony/bin/validator  %{buildroot}%{_bindir}/validator
 
 # Install components
 cp -R lib %{buildroot}%{_libdir}/nimony/
@@ -90,12 +86,9 @@ cp vendor/errorcodes/LICENSE %{buildroot}%{_libdir}/nimony/vendor/errorcodes/
 %files
 %license license.txt
 %doc README.md
-%{_bindir}/hexer
-%{_bindir}/nifc
 %{_bindir}/nifler
 %{_bindir}/nifmake
 %{_bindir}/nimony
-%{_bindir}/nimsem
 %{_libdir}/nimony
 %{_datadir}/nimony
 
