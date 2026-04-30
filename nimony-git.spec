@@ -43,6 +43,7 @@ git submodule init || true
 %build
 # Build all components using hastur
 nim c -r src/hastur build all --release
+nim c -r src/hastur build validator --release
 
 %install
 # Create directory structure
