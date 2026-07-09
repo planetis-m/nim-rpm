@@ -122,12 +122,19 @@ ln -sf %{_sysconfdir}/nim %{buildroot}%{_libdir}/nim/config
 %exclude %{_libdir}/nim/dist/*/tests
 %exclude %{_libdir}/nim/dist/*/vendor/*/tests
 %exclude %{_libdir}/nim/dist/*/dist/*/tests
+%exclude %{_libdir}/nim/dist/*/src/*/tests
 %exclude %{_libdir}/nim/dist/*/dist/*/.github
 %exclude %{_libdir}/nim/dist/*/.github
 %exclude %{_libdir}/nim/dist/nimble/nimble-guide
-# Exclude .idx files in tools/html
+# Exclude build cache, VCS, and AI assistant files
+%exclude %{_libdir}/nim/dist/*/.nimcache
+%exclude %{_libdir}/nim/dist/*/.gitignore
+%exclude %{_libdir}/nim/dist/*/AGENTS.md
+%exclude %{_libdir}/nim/dist/*/CLAUDE.md
+# Exclude .idx files in doc/html
 %exclude %{_datadir}/nim/doc/html/*.idx
 %exclude %{_datadir}/nim/doc/html/compiler/*.idx
+%exclude %{_datadir}/nim/doc/html/compiler/*/*.idx
 
 %changelog
 * Mon Jan 01 2024 Packager <packager@example.com> - 2.2.5-1
