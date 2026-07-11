@@ -3,14 +3,14 @@
 
 Summary: A statically typed compiled systems programming language
 Name: nim
-Version: 2.2.8
+Version: 2.2.10
 Release: %autorelease
 License: MIT
 Group: Development/Languages
 
 # Define all sources unconditionally
-Source0: https://github.com/nim-lang/nightlies/releases/download/2026-02-23-version-2-2-4f500679b196fad944caa50a753f5bbfaefda001/nim-2.2.8-linux_x64.tar.xz
-Source1: https://github.com/nim-lang/nightlies/releases/download/2026-02-23-version-2-2-4f500679b196fad944caa50a753f5bbfaefda001/nim-2.2.8-linux_arm64.tar.xz
+Source0: https://github.com/nim-lang/nightlies/releases/download/2026-04-24-version-2-2-bfeb3146d1638b39f69007a4ae5a23e23ae4e5ef/nim-2.2.10-linux_x64.tar.xz
+Source1: https://github.com/nim-lang/nightlies/releases/download/2026-04-24-version-2-2-bfeb3146d1638b39f69007a4ae5a23e23ae4e5ef/nim-2.2.10-linux_arm64.tar.xz
 
 # Exclude unsupported architectures
 ExclusiveArch: x86_64 aarch64
