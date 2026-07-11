@@ -61,7 +61,7 @@ ln -sf ../%{_lib}/nimony/bin/nifc  %{buildroot}%{_bindir}/nifc
 ln -sf ../%{_lib}/nimony/bin/nifler  %{buildroot}%{_bindir}/nifler
 ln -sf ../%{_lib}/nimony/bin/nifmake  %{buildroot}%{_bindir}/nifmake
 ln -sf ../%{_lib}/nimony/bin/nimony  %{buildroot}%{_bindir}/nimony
-ln -sf ../%{_lib}/nimony/bin/nimpac  %{buildroot}%{_bindir}/nimpac
+ln -sf ../%{_lib}/nimony/bin/pnak  %{buildroot}%{_bindir}/pnak
 
 # Install components
 cp -R lib %{buildroot}%{_libdir}/nimony/
@@ -73,7 +73,7 @@ mkdir -p %{buildroot}%{_libdir}/nimony/src
 cp -R src/lib %{buildroot}%{_libdir}/nimony/src
 cp -R src/models %{buildroot}%{_libdir}/nimony/src
 mkdir -p %{buildroot}%{_libdir}/nimony/src/nimony
-cp src/nimony/nimony_model.nim %{buildroot}%{_libdir}/nimony/src/nimony/
+cp src/nimony/nif_annotations.nim %{buildroot}%{_libdir}/nimony/src/nimony/
 cp -R src/nimony/lib %{buildroot}%{_libdir}/nimony/src/nimony
 
 # Install vendor - only copy what's needed
@@ -95,7 +95,7 @@ cp vendor/errorcodes/LICENSE %{buildroot}%{_libdir}/nimony/vendor/errorcodes/
 %{_bindir}/nifler
 %{_bindir}/nifmake
 %{_bindir}/nimony
-%{_bindir}/nimpac
+%{_bindir}/pnak
 %{_libdir}/nimony
 %{_datadir}/nimony
 
