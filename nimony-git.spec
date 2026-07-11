@@ -82,9 +82,6 @@ cp -R vendor/mimalloc/src %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
 cp -R vendor/mimalloc/include %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
 cp vendor/mimalloc/LICENSE %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
 
-cp -R vendor/errorcodes/src %{buildroot}%{_libdir}/nimony/vendor/errorcodes/
-cp vendor/errorcodes/LICENSE %{buildroot}%{_libdir}/nimony/vendor/errorcodes/
-
 %files
 %license license.txt
 %doc README.md
