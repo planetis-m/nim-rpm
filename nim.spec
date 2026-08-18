@@ -49,21 +49,25 @@ export CFLAGS="${rpm_cflags}"
 export LDFLAGS="${rpm_ldflags}"
 
 nim_compile_koch() {
-  if [ -n "${rpm_ldflags}" ]; then
-    bin/nim c "--passL:${rpm_ldflags}" "$@" koch
-  else
-    bin/nim c "$@" koch
+  if [ -n "${rpm_cflags}" ]; then
+    set -- "--passC:${rpm_cflags}" "$@"
   fi
+  if [ -n "${rpm_ldflags}" ]; then
+    set -- "--passL:${rpm_ldflags}" "$@"
+  fi
+  bin/nim c "$@" koch
 }
 
 koch() {
   command="$1"
   shift
-  if [ -n "${rpm_ldflags}" ]; then
-    ./koch "${command}" "--passL:${rpm_ldflags}" "$@"
-  else
-    ./koch "${command}" "$@"
+  if [ -n "${rpm_cflags}" ]; then
+    set -- "--passC:${rpm_cflags}" "$@"
   fi
+  if [ -n "${rpm_ldflags}" ]; then
+    set -- "--passL:${rpm_ldflags}" "$@"
+  fi
+  ./koch "${command}" "$@"
 }
 
 nim_compile_koch --noNimblePath --skipUserCfg --skipParentCfg --hints:off
