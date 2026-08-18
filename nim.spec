@@ -59,15 +59,12 @@ bin/nim c -d:release \
   --noNimblePath --skipUserCfg --skipParentCfg --hints:off \
   koch
 
-# Koch quotes multi-word --passC/--passL arguments. For boot that prevents its
-# automatic command detection, so provide the `c` command explicitly.
+# Keep -d:release first: Koch uses an initial option to add `c` only to its
+# compile phase, without forwarding that command to jsonscript.
 run_koch() {
   command="$1"
   shift
-  if [ "${command}" = boot ]; then
-    set -- c "$@"
-  fi
-  ./koch "${command}" "$@" -d:release \
+  ./koch "${command}" -d:release "$@" \
     "--passC:${rpm_cflags}" \
     "--passL:${rpm_ldflags}"
 }
