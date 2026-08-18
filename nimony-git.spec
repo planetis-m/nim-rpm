@@ -12,8 +12,10 @@ License:        MIT
 URL:            https://github.com/nim-lang/nimony
 Source0:        https://github.com/nim-lang/nimony/archive/refs/heads/master.tar.gz#/nimony-master-%{version}.tar.gz
 Source1:        https://github.com/nim-lang/mimalloc/archive/refs/heads/master.tar.gz#/mimalloc-master.tar.gz
+Source2:        nimony-rpm-flags.nims
 
 BuildRequires:  gcc
+BuildRequires:  git
 BuildRequires:  nim
 BuildRequires:  redhat-rpm-config
 
@@ -30,20 +32,21 @@ tracks its master branch and includes the compiler's private supporting tools.
 %autosetup -n nimony-master
 tar -xzf %{SOURCE1} -C vendor/mimalloc --strip-components=1
 
+# Hastur runs `git submodule update`, while Source0 is a tarball. An empty
+# repository is sufficient: mimalloc has already been populated from Source1.
+git init -q
+
+# This build-only parent config is inherited by src/hastur.nim and by every
+# host-Nim compilation that hastur launches below.
+install -m 0644 %{SOURCE2} config.nims
+
 %build
 %set_build_flags
 
-# Pass matching compiler and linker flags to hastur and every host-Nim tool it
-# builds. Fedora's hardened linker flags require objects compiled as PIE/PIC.
-if [ -n "${LDFLAGS-}" ]; then
-  hastur_flags="--forward:--passC:\"${CFLAGS}\" --passL:\"${LDFLAGS}\""
-  nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur \
-    build all --release "${hastur_flags}"
-else
-  hastur_flags="--forward:--passC:\"${CFLAGS}\""
-  nim c "--passC:${CFLAGS}" -r src/hastur \
-    build all --release "${hastur_flags}"
-fi
+# config.nims forwards the paired RPM flags to hastur and every tool it builds.
+# Hastur's --forward option is not used here: `build all` does not propagate it
+# to its host-Nim subprocesses.
+nim c -r src/hastur build all --release
 
 %install
 install -d \
