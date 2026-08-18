@@ -1,87 +1,81 @@
 %global debug_package %{nil}
 %global _build_id_links none
 
-%define date %(date +%Y%m%d)
+%global snapshot_date %(date -u +%Y%m%d)
+%global upstream_version 0.4.0
 
 Name:           nimony-git
-Version:        0.4.0~devel.%{date}
+Version:        %{upstream_version}~devel.%{snapshot_date}
 Release:        %autorelease
-Summary:        Nimony compiler and toolchain (development version)
-
+Summary:        Nimony compiler and toolchain (development snapshot)
 License:        MIT
 URL:            https://github.com/nim-lang/nimony
 Source0:        https://github.com/nim-lang/nimony/archive/refs/heads/master.tar.gz#/nimony-master-%{version}.tar.gz
 Source1:        https://github.com/nim-lang/mimalloc/archive/refs/heads/master.tar.gz#/mimalloc-master.tar.gz
 
-BuildRequires:  nim
 BuildRequires:  gcc
-BuildRequires:  git
+BuildRequires:  nim
+BuildRequires:  redhat-rpm-config
 
 Requires:       gcc
+Requires:       git
 Provides:       nimony = %{version}-%{release}
 Conflicts:      nimony
 
 %description
-Nimony is a new Nim implementation that is in heavy development.
+Nimony is a new Nim implementation under active development. This package
+tracks its master branch and includes the compiler's private supporting tools.
 
 %prep
 %autosetup -n nimony-master
-# Extract submodules manually
 tar -xzf %{SOURCE1} -C vendor/mimalloc --strip-components=1
 
-# Initialize git repo for hastur build script
-git init
-git config user.email "build@copr"
-git config user.name "COPR Build"
-git add .
-git commit -m "Initial commit for build"
-# The hastur script expects git submodules to be present
-git submodule init || true
-
 %build
-# Build all components using hastur
-nim c -r src/hastur build all --release
-nim c -r src/hastur build validator --release
+%set_build_flags
+
+# CFLAGS is consumed directly by Nim. Forward RPM's linker flags both while
+# compiling hastur and to every host-Nim tool build launched by hastur.
+if [ -n "${LDFLAGS-}" ]; then
+  hastur_ldflags="--forward:--passL:\"${LDFLAGS}\""
+  nim c "--passL:${LDFLAGS}" -r src/hastur \
+    build all --release "${hastur_ldflags}"
+else
+  nim c -r src/hastur build all --release
+fi
 
 %install
-# Create directory structure
-mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_libdir}/nimony
-mkdir -p %{buildroot}%{_libdir}/nimony/bin
-mkdir -p %{buildroot}%{_datadir}/nimony
+install -d \
+  %{buildroot}%{_bindir} \
+  %{buildroot}%{_libdir}/nimony/bin \
+  %{buildroot}%{_libdir}/nimony/doc \
+  %{buildroot}%{_libdir}/nimony/src/nimony \
+  %{buildroot}%{_libdir}/nimony/vendor/mimalloc \
+  %{buildroot}%{_datadir}/nimony
 
-# Install binaries to /usr/lib/nimony/bin
-install -Dm 755 bin/* -t %{buildroot}%{_libdir}/nimony/bin
+# All generated tools are installed privately because the compiler locates
+# them beside itself. Expose only the established user-facing commands.
+install -m 0755 bin/* -t %{buildroot}%{_libdir}/nimony/bin
+for tool in dagon nifler nifmake nimony pnak; do
+  ln -s "../%{_lib}/nimony/bin/${tool}" "%{buildroot}%{_bindir}/${tool}"
+done
 
-# Create symlinks in /usr/bin
-ln -sf ../%{_lib}/nimony/bin/dagon  %{buildroot}%{_bindir}/dagon
-ln -sf ../%{_lib}/nimony/bin/nifler  %{buildroot}%{_bindir}/nifler
-ln -sf ../%{_lib}/nimony/bin/nifmake  %{buildroot}%{_bindir}/nifmake
-ln -sf ../%{_lib}/nimony/bin/nimony  %{buildroot}%{_bindir}/nimony
-ln -sf ../%{_lib}/nimony/bin/pnak  %{buildroot}%{_bindir}/pnak
+cp -a lib tools %{buildroot}%{_libdir}/nimony/
+cp -a doc %{buildroot}%{_datadir}/nimony/
 
-# Install components
-cp -R lib %{buildroot}%{_libdir}/nimony/
-cp -R tools %{buildroot}%{_libdir}/nimony/
-cp -R doc %{buildroot}%{_datadir}/nimony/
-# validator resolves its grammar relative to its private bin/ directory.
-install -Dm 644 doc/tags.md -t %{buildroot}%{_libdir}/nimony/doc
+# validator searches for this grammar relative to its private bin directory.
+install -m 0644 doc/tags.md -t %{buildroot}%{_libdir}/nimony/doc
 
-# Install compiler plugins
-mkdir -p %{buildroot}%{_libdir}/nimony/src
-cp -R src/lib %{buildroot}%{_libdir}/nimony/src
-cp -R src/models %{buildroot}%{_libdir}/nimony/src
-mkdir -p %{buildroot}%{_libdir}/nimony/src/nimony
-cp src/nimony/nif_annotations.nim %{buildroot}%{_libdir}/nimony/src/nimony/
-cp -R src/nimony/lib %{buildroot}%{_libdir}/nimony/src/nimony
+# Sources required for compiling Nimony plugins.
+cp -a src/lib src/models %{buildroot}%{_libdir}/nimony/src/
+install -m 0644 src/nimony/nif_annotations.nim \
+  -t %{buildroot}%{_libdir}/nimony/src/nimony
+cp -a src/nimony/lib %{buildroot}%{_libdir}/nimony/src/nimony/
 
-# Install vendor - only copy what's needed
-mkdir -p %{buildroot}%{_libdir}/nimony/vendor/mimalloc
-mkdir -p %{buildroot}%{_libdir}/nimony/vendor/errorcodes
-
-cp -R vendor/mimalloc/src %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
-cp -R vendor/mimalloc/include %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
-cp vendor/mimalloc/LICENSE %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
+# The standard library compiles mimalloc into user programs.
+cp -a vendor/mimalloc/src vendor/mimalloc/include \
+  %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
+install -m 0644 vendor/mimalloc/LICENSE \
+  -t %{buildroot}%{_libdir}/nimony/vendor/mimalloc
 
 %files
 %license license.txt

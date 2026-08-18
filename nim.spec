@@ -1,147 +1,127 @@
 %global debug_package %{nil}
 %global _build_id_links none
 
-Summary: A statically typed compiled systems programming language
-Name: nim
-Version: 2.2.10
-Release: %autorelease
-License: MIT
-Group: Development/Languages
+Name:           nim
+Version:        2.2.10
+Release:        %autorelease
+Summary:        Statically typed compiled systems programming language
+License:        MIT
+URL:            https://nim-lang.org/
+Source0:        https://github.com/nim-lang/Nim/archive/refs/tags/v%{version}.tar.gz#/nim-%{version}.tar.gz
 
-# Build from the upstream release source. The bootstrap compiler is compiled
-# from csources_v3, then koch bootstraps the full compiler and bundled tools.
-# csources_v3, checksums, atlas and sat are git-cloned during the build at the
-# commits pinned in the Nim tree. Nimble is deliberately not shipped.
-Source0: https://github.com/nim-lang/Nim/archive/refs/tags/v%{version}.tar.gz#/nim-%{version}.tar.gz
+ExclusiveArch:  x86_64 aarch64
 
-# Exclude unsupported architectures
-ExclusiveArch: x86_64 aarch64
+BuildRequires:  gcc
+BuildRequires:  git
+BuildRequires:  make
+BuildRequires:  redhat-rpm-config
 
-URL: https://nim-lang.org/
-BuildRequires: gcc
-BuildRequires: make
-BuildRequires: git
-BuildRequires: pcre2-devel
-BuildRequires: openssl-devel
-Requires: gcc
+Requires:       gcc
+Requires:       git
 
 %description
-Nim is a statically typed compiled systems programming language.
-It combines successful concepts from mature languages like Python,
-Ada and Modula.
+Nim is a statically typed compiled systems programming language combining
+concepts from languages such as Python, Ada, and Modula.
+
+This package is bootstrapped entirely from source. Nimble is not included.
 
 %prep
-%setup -q -n Nim-%{version}
+%autosetup -n Nim-%{version}
 
 %build
-# Compile the bootstrap compiler from the pre-generated C sources.
-# The csources makefile appends its own flags to CFLAGS, so start from a
-# clean set instead of the distro defaults. Restore the RPM build flags for
-# the compiler and tools built afterwards.
-csources_CFLAGS="${CFLAGS-}"
-csources_LDFLAGS="${LDFLAGS-}"
+%set_build_flags
+
+# Fetch the exact csources commit selected by this release rather than relying
+# on ci/funs.sh's shallow clone of the configured branch tip.
+. config/build_config.txt
+git init -q "${nim_csourcesDir}"
+git -C "${nim_csourcesDir}" remote add origin "${nim_csourcesUrl}"
+git -C "${nim_csourcesDir}" fetch -q --depth 1 origin "${nim_csourcesHash}"
+git -C "${nim_csourcesDir}" checkout -q --detach FETCH_HEAD
+
+rpm_cflags="${CFLAGS-}"
+rpm_ldflags="${LDFLAGS-}"
 export CFLAGS=
 export LDFLAGS=
 . ci/funs.sh
 nimBuildCsourcesIfNeeded
-export CFLAGS="${csources_CFLAGS}"
-export LDFLAGS="${csources_LDFLAGS}"
-unset csources_CFLAGS csources_LDFLAGS
+export CFLAGS="${rpm_cflags}"
+export LDFLAGS="${rpm_ldflags}"
 
 nim_compile_koch() {
-  if [ -n "${LDFLAGS}" ]; then
-    bin/nim c "$@" "--passL:${LDFLAGS}" koch
+  if [ -n "${rpm_ldflags}" ]; then
+    bin/nim c "--passL:${rpm_ldflags}" "$@" koch
   else
     bin/nim c "$@" koch
   fi
 }
 
-koch_with_linker_flags() {
+koch() {
   command="$1"
   shift
-  if [ -n "${LDFLAGS}" ]; then
-    ./koch "${command}" "--passL:${LDFLAGS}" "$@"
+  if [ -n "${rpm_ldflags}" ]; then
+    ./koch "${command}" "--passL:${rpm_ldflags}" "$@"
   else
     ./koch "${command}" "$@"
   fi
 }
 
-# Compile koch with the bootstrap compiler, then bootstrap the full compiler.
 nim_compile_koch --noNimblePath --skipUserCfg --skipParentCfg --hints:off
-koch_with_linker_flags boot -d:release --skipUserCfg --skipParentCfg --hints:off
+koch boot -d:release --skipUserCfg --skipParentCfg --hints:off
+koch toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
+koch atlas --skipUserCfg --skipParentCfg --hints:off
 
-# Build the bundled tools without Nimble, then build atlas.
-koch_with_linker_flags toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
-koch_with_linker_flags atlas --skipUserCfg --skipParentCfg --hints:off
-
-# Generate the documentation helper required by `nim doc --index:on`.
-bin/nim js -d:release --noNimblePath --skipUserCfg --skipParentCfg --hints:off tools/dochack/dochack.nim
+bin/nim js -d:release --noNimblePath --skipUserCfg --skipParentCfg \
+  --hints:off tools/dochack/dochack.nim
 
 %install
-# Create directory structure
-mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_libdir}/nim
-mkdir -p %{buildroot}%{_libdir}/nim/bin
-mkdir -p %{buildroot}%{_libdir}/nim/doc
-mkdir -p %{buildroot}%{_datadir}/nim
-mkdir -p %{buildroot}%{_sysconfdir}/nim
-mkdir -p %{buildroot}%{_datadir}/bash-completion/completions
-mkdir -p %{buildroot}%{_datadir}/zsh/site-functions
+install -d \
+  %{buildroot}%{_bindir} \
+  %{buildroot}%{_libdir}/nim/bin \
+  %{buildroot}%{_libdir}/nim/dist \
+  %{buildroot}%{_libdir}/nim/doc \
+  %{buildroot}%{_libdir}/nim/tools/dochack \
+  %{buildroot}%{_datadir}/nim \
+  %{buildroot}%{_sysconfdir}/nim \
+  %{buildroot}%{_datadir}/bash-completion/completions \
+  %{buildroot}%{_datadir}/zsh/site-functions
 
-# Install binaries to /usr/lib/nim/bin
-install -Dm 755 bin/atlas bin/nim bin/nim_dbg bin/nimgrep bin/nimpretty bin/nimsuggest bin/testament -t %{buildroot}%{_libdir}/nim/bin
-install -Dm 755 bin/nim-gdb -t %{buildroot}%{_libdir}/nim/bin
+install -m 0755 -t %{buildroot}%{_libdir}/nim/bin \
+  bin/atlas bin/nim bin/nim_dbg bin/nim-gdb bin/nimgrep bin/nimpretty \
+  bin/nimsuggest bin/testament
 
-# Create symlinks in /usr/bin
-ln -sf ../%{_lib}/nim/bin/atlas %{buildroot}%{_bindir}/atlas
-ln -sf ../%{_lib}/nim/bin/nim %{buildroot}%{_bindir}/nim
-ln -sf ../%{_lib}/nim/bin/nim_dbg %{buildroot}%{_bindir}/nim_dbg
-ln -sf ../%{_lib}/nim/bin/nim-gdb %{buildroot}%{_bindir}/nim-gdb
-ln -sf ../%{_lib}/nim/bin/nimgrep %{buildroot}%{_bindir}/nimgrep
-ln -sf ../%{_lib}/nim/bin/nimpretty %{buildroot}%{_bindir}/nimpretty
-ln -sf ../%{_lib}/nim/bin/nimsuggest %{buildroot}%{_bindir}/nimsuggest
-ln -sf ../%{_lib}/nim/bin/testament %{buildroot}%{_bindir}/testament
-
-# Install library files
-cp -R lib %{buildroot}%{_libdir}/nim/
-
-# Install config files to /etc/nim
-install -Dm 644 config/* -t %{buildroot}%{_sysconfdir}/nim
-
-# Install other Nim components
-cp -R compiler %{buildroot}%{_libdir}/nim/
-# Strip VCS metadata from the build-time git clones before installing.
-find dist -name .git -type d -prune -exec rm -rf {} +
-cp -R dist %{buildroot}%{_libdir}/nim/
-cp -R doc %{buildroot}%{_datadir}/nim/
-
-# Install nim.nimble to the compiler directory
-install -Dm 644 nim.nimble -t %{buildroot}%{_libdir}/nim/compiler
-
-# Install documentation files to proper location
-install -Dm 644 doc/nimdoc.css -t %{buildroot}%{_libdir}/nim/doc
-install -Dm 644 doc/nimdoc.cls -t %{buildroot}%{_libdir}/nim/doc
-install -Dm 644 doc/basicopt.txt -t %{buildroot}%{_libdir}/nim/doc
-install -Dm 644 doc/advopt.txt -t %{buildroot}%{_libdir}/nim/doc
-install -Dm 644 doc/grammar.txt -t %{buildroot}%{_libdir}/nim/doc
-
-# Install tools
-install -Dm 644 tools/debug/nim-gdb.py -t %{buildroot}%{_libdir}/nim/tools
-install -Dm 644 tools/dochack/dochack.js -t %{buildroot}%{_libdir}/nim/tools/dochack
-
-# Install shell completions from tools directory
-for comp in tools/*.bash-completion; do
-  install -Dm 644 "${comp}" "%{buildroot}%{_datadir}/bash-completion/completions/$(basename "${comp%.bash-completion}")"
+for tool in atlas nim nim_dbg nim-gdb nimgrep nimpretty nimsuggest testament; do
+  ln -s "../%{_lib}/nim/bin/${tool}" "%{buildroot}%{_bindir}/${tool}"
 done
 
-for comp in tools/*.zsh-completion; do
-  install -Dm 644 "${comp}" "%{buildroot}%{_datadir}/zsh/site-functions/_$(basename "${comp%.zsh-completion}")"
-done
+cp -a lib compiler %{buildroot}%{_libdir}/nim/
+cp -a dist/checksums %{buildroot}%{_libdir}/nim/dist/
+find %{buildroot}%{_libdir}/nim/dist -type d -name .git -prune -exec rm -rf {} +
 
-# Create symlinks for configuration
-ln -sf %{_sysconfdir}/nim %{buildroot}%{_libdir}/nim/config
+install -m 0644 -t %{buildroot}%{_sysconfdir}/nim config/*
+cp -a doc %{buildroot}%{_datadir}/nim/
+install -m 0644 nim.nimble -t %{buildroot}%{_libdir}/nim/compiler
+install -m 0644 -t %{buildroot}%{_libdir}/nim/doc \
+  doc/nimdoc.css doc/nimdoc.cls doc/basicopt.txt doc/advopt.txt doc/grammar.txt
+install -m 0644 tools/debug/nim-gdb.py -t %{buildroot}%{_libdir}/nim/tools
+install -m 0644 tools/dochack/dochack.js -t %{buildroot}%{_libdir}/nim/tools/dochack
+
+install -m 0644 tools/nim.bash-completion \
+  %{buildroot}%{_datadir}/bash-completion/completions/nim
+install -m 0644 tools/nimgrep.bash-completion \
+  %{buildroot}%{_datadir}/bash-completion/completions/nimgrep
+install -m 0644 tools/nimpretty.bash-completion \
+  %{buildroot}%{_datadir}/bash-completion/completions/nimpretty
+install -m 0644 tools/nimsuggest.bash-completion \
+  %{buildroot}%{_datadir}/bash-completion/completions/nimsuggest
+install -m 0644 tools/nim.zsh-completion \
+  %{buildroot}%{_datadir}/zsh/site-functions/_nim
+
+ln -s %{_sysconfdir}/nim %{buildroot}%{_libdir}/nim/config
 
 %files
+%license copying.txt
+%doc readme.md
 %{_bindir}/atlas
 %{_bindir}/nim
 %{_bindir}/nim_dbg
@@ -152,30 +132,24 @@ ln -sf %{_sysconfdir}/nim %{buildroot}%{_libdir}/nim/config
 %{_bindir}/testament
 %{_libdir}/nim
 %{_datadir}/nim
-%{_sysconfdir}/nim
-# Include all bash completion files that were installed
-%{_datadir}/bash-completion/completions/*
-# Include all zsh completion files that were installed
-%{_datadir}/zsh/site-functions/_*
-# Exclude tests directories
+%dir %{_sysconfdir}/nim
+%config(noreplace) %{_sysconfdir}/nim/*
+%{_datadir}/bash-completion/completions/nim
+%{_datadir}/bash-completion/completions/nimgrep
+%{_datadir}/bash-completion/completions/nimpretty
+%{_datadir}/bash-completion/completions/nimsuggest
+%{_datadir}/zsh/site-functions/_nim
+
 %exclude %{_libdir}/nim/dist/*/tests
-%exclude %{_libdir}/nim/dist/*/vendor/*/tests
-%exclude %{_libdir}/nim/dist/*/dist/*/tests
-%exclude %{_libdir}/nim/dist/*/src/*/tests
-%exclude %{_libdir}/nim/dist/*/dist/*/.github
 %exclude %{_libdir}/nim/dist/*/.github
-%exclude %{_libdir}/nim/dist/nimble/nimble-guide
-# Exclude build cache, VCS, and AI assistant files
 %exclude %{_libdir}/nim/dist/*/.nimcache
 %exclude %{_libdir}/nim/dist/*/.gitignore
 %exclude %{_libdir}/nim/dist/*/AGENTS.md
 %exclude %{_libdir}/nim/dist/*/CLAUDE.md
 %exclude %{_libdir}/nim/lib/impure/nre/.gitignore
-# Exclude .idx files in doc/html
 %exclude %{_datadir}/nim/doc/html/*.idx
 %exclude %{_datadir}/nim/doc/html/compiler/*.idx
 %exclude %{_datadir}/nim/doc/html/compiler/*/*.idx
 
 %changelog
-* Mon Jan 01 2024 Packager <packager@example.com> - 2.2.5-1
-- Initial package
+%autochangelog
