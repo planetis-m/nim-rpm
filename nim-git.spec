@@ -59,16 +59,34 @@ export CFLAGS="${csources_CFLAGS}"
 export LDFLAGS="${csources_LDFLAGS}"
 unset csources_CFLAGS csources_LDFLAGS
 
+nim_compile_koch() {
+  if [ -n "${LDFLAGS}" ]; then
+    bin/nim c "$@" "--passL:${LDFLAGS}" koch
+  else
+    bin/nim c "$@" koch
+  fi
+}
+
+koch_with_linker_flags() {
+  command="$1"
+  shift
+  if [ -n "${LDFLAGS}" ]; then
+    ./koch "${command}" "--passL:${LDFLAGS}" "$@"
+  else
+    ./koch "${command}" "$@"
+  fi
+}
+
 # Compile koch with the bootstrap compiler, then bootstrap the full compiler.
-bin/nim c --noNimblePath --skipUserCfg --skipParentCfg --hints:off koch
-./koch boot -d:release --skipUserCfg --skipParentCfg --hints:off
+nim_compile_koch --noNimblePath --skipUserCfg --skipParentCfg --hints:off
+koch_with_linker_flags boot -d:release --skipUserCfg --skipParentCfg --hints:off
 
 # Build the bundled tools: nimsuggest, nimpretty, nimgrep, testament, nim_dbg.
 # toolsNoExternal deliberately skips nimble, which is not shipped.
-./koch toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
+koch_with_linker_flags toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
 
 # Build atlas (external tool, cloned at build time).
-./koch atlas --skipUserCfg --skipParentCfg --hints:off
+koch_with_linker_flags atlas --skipUserCfg --skipParentCfg --hints:off
 
 # Generate the documentation helper required by `nim doc --index:on`.
 bin/nim js -d:release --noNimblePath --skipUserCfg --skipParentCfg --hints:off tools/dochack/dochack.nim
@@ -97,8 +115,8 @@ ln -sf ../%{_lib}/nim/bin/nimgrep %{buildroot}%{_bindir}/nimgrep
 ln -sf ../%{_lib}/nim/bin/nimpretty %{buildroot}%{_bindir}/nimpretty
 ln -sf ../%{_lib}/nim/bin/nimsuggest %{buildroot}%{_bindir}/nimsuggest
 ln -sf ../%{_lib}/nim/bin/testament %{buildroot}%{_bindir}/testament
-ln -sf ../%{_lib}/nim/bin/nifler %{buildroot}%{_bindir}/nifler
-ln -sf ../%{_lib}/nim/bin/nifmake %{buildroot}%{_bindir}/nifmake
+# nifler and nifmake remain private: `nim ic` resolves its pinned copies beside
+# the Nim executable.  Their public commands belong to the nimony package.
 
 # Install library files
 cp -R lib %{buildroot}%{_libdir}/nim/
@@ -148,8 +166,6 @@ ln -sf %{_sysconfdir}/nim %{buildroot}%{_libdir}/nim/config
 %{_bindir}/nimpretty
 %{_bindir}/nimsuggest
 %{_bindir}/testament
-%{_bindir}/nifler
-%{_bindir}/nifmake
 %{_libdir}/nim
 %{_datadir}/nim
 %{_sysconfdir}/nim
