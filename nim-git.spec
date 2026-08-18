@@ -58,22 +58,10 @@ nim_compile_koch() {
   bin/nim c "$@" koch
 }
 
-koch() {
-  command="$1"
-  shift
-  if [ -n "${rpm_cflags}" ]; then
-    set -- "--passC:${rpm_cflags}" "$@"
-  fi
-  if [ -n "${rpm_ldflags}" ]; then
-    set -- "--passL:${rpm_ldflags}" "$@"
-  fi
-  ./koch "${command}" "$@"
-}
-
 nim_compile_koch --noNimblePath --skipUserCfg --skipParentCfg --hints:off
-koch boot -d:release --skipUserCfg --skipParentCfg --hints:off
-koch toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
-koch atlas --skipUserCfg --skipParentCfg --hints:off
+./koch boot -d:release --skipUserCfg --skipParentCfg --hints:off
+./koch toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
+./koch atlas --skipUserCfg --skipParentCfg --hints:off
 
 # nim doc --index:on invokes this generated JavaScript helper.
 bin/nim js -d:release --noNimblePath --skipUserCfg --skipParentCfg \
