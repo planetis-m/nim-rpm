@@ -10,7 +10,6 @@ Release:        %autorelease
 Summary:        Nimony compiler and toolchain (development snapshot)
 License:        MIT
 URL:            https://github.com/nim-lang/nimony
-Source0:        nimony-rpm-flags.nims
 
 BuildRequires:  gcc
 BuildRequires:  git
@@ -30,17 +29,12 @@ tracks its master branch and includes the compiler's private supporting tools.
 %autosetup -c -T -n nimony-master
 git clone -q --depth 1 https://github.com/nim-lang/nimony.git .
 
-# This build-only parent config is inherited by src/hastur.nim and by every
-# host-Nim compilation that hastur launches below.
-install -m 0644 %{SOURCE0} config.nims
-
 %build
 %set_build_flags
 
-# config.nims forwards the paired RPM flags to hastur and every tool it builds.
-# Hastur's --forward option is not used here: `build all` does not propagate it
-# to its host-Nim subprocesses.
-nim c -r src/hastur build all --release
+# Build hastur with Fedora's paired compiler and linker flags. Its child tool
+# builds use Hastur's normal upstream commands, just like Koch above.
+nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur build all --release
 
 %install
 install -d \
