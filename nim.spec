@@ -50,10 +50,25 @@ nim_compile_koch() {
   bin/nim c "$@" koch
 }
 
+# koch() forwards the distro flags to the koch commands. `-d:release` must
+# stay first: koch boot only inserts the `c` command when its cmdLineRest
+# starts with '-', and parseopt single-quotes multi-word args like --passC.
+koch() {
+  command="$1"
+  shift
+  if [ -n "${rpm_cflags}" ]; then
+    set -- "--passC:${rpm_cflags}" "$@"
+  fi
+  if [ -n "${rpm_ldflags}" ]; then
+    set -- "--passL:${rpm_ldflags}" "$@"
+  fi
+  ./koch "${command}" -d:release "$@"
+}
+
 nim_compile_koch --noNimblePath --skipUserCfg --skipParentCfg --hints:off
-./koch boot -d:release --skipUserCfg --skipParentCfg --hints:off
-./koch toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
-./koch atlas --skipUserCfg --skipParentCfg --hints:off
+koch boot --skipUserCfg --skipParentCfg --hints:off
+koch toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
+koch atlas --skipUserCfg --skipParentCfg --hints:off
 
 bin/nim js -d:release --noNimblePath --skipUserCfg --skipParentCfg \
   --hints:off tools/dochack/dochack.nim
