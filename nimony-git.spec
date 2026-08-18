@@ -55,7 +55,6 @@ install -Dm 755 bin/* -t %{buildroot}%{_libdir}/nimony/bin
 
 # Create symlinks in /usr/bin
 ln -sf ../%{_lib}/nimony/bin/dagon  %{buildroot}%{_bindir}/dagon
-ln -sf ../%{_lib}/nimony/bin/nifc  %{buildroot}%{_bindir}/nifc
 ln -sf ../%{_lib}/nimony/bin/nifler  %{buildroot}%{_bindir}/nifler
 ln -sf ../%{_lib}/nimony/bin/nifmake  %{buildroot}%{_bindir}/nifmake
 ln -sf ../%{_lib}/nimony/bin/nimony  %{buildroot}%{_bindir}/nimony
@@ -65,6 +64,8 @@ ln -sf ../%{_lib}/nimony/bin/pnak  %{buildroot}%{_bindir}/pnak
 cp -R lib %{buildroot}%{_libdir}/nimony/
 cp -R tools %{buildroot}%{_libdir}/nimony/
 cp -R doc %{buildroot}%{_datadir}/nimony/
+# validator resolves its grammar relative to its private bin/ directory.
+install -Dm 644 doc/tags.md -t %{buildroot}%{_libdir}/nimony/doc
 
 # Install compiler plugins
 mkdir -p %{buildroot}%{_libdir}/nimony/src
@@ -86,7 +87,6 @@ cp vendor/mimalloc/LICENSE %{buildroot}%{_libdir}/nimony/vendor/mimalloc/
 %license license.txt
 %doc README.md
 %{_bindir}/dagon
-%{_bindir}/nifc
 %{_bindir}/nifler
 %{_bindir}/nifmake
 %{_bindir}/nimony
