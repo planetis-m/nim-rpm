@@ -51,31 +51,30 @@ nimBuildCsourcesIfNeeded
 export CFLAGS="${rpm_cflags}"
 export LDFLAGS="${rpm_ldflags}"
 
-# nim reads CFLAGS from the environment (extccomp) but has no LDFLAGS env
-# path, so LDFLAGS must be forwarded explicitly via --passL.
-nim_compile_koch() {
-  if [ -n "${rpm_ldflags}" ]; then
-    set -- "--passL:${rpm_ldflags}" "$@"
-  fi
-  bin/nim c "$@" -d:release koch
-}
+# Pass RPM hardening flags explicitly: Nim does not reliably consume CFLAGS
+# from its environment, and has no LDFLAGS environment path.
+bin/nim c -d:release \
+  "--passC:${rpm_cflags}" \
+  "--passL:${rpm_ldflags}" \
+  --noNimblePath --skipUserCfg --skipParentCfg --hints:off \
+  koch
 
-# koch() forwards LDFLAGS to the koch commands. `-d:release` must stay first:
-# koch boot only inserts the `c` command when its cmdLineRest starts with '-',
-# and parseopt single-quotes multi-word args like --passL.
-koch() {
+# Koch quotes multi-word --passC/--passL arguments. For boot that prevents its
+# automatic command detection, so provide the `c` command explicitly.
+run_koch() {
   command="$1"
   shift
-  if [ -n "${rpm_ldflags}" ]; then
-    set -- "--passL:${rpm_ldflags}" "$@"
+  if [ "${command}" = boot ]; then
+    set -- c "$@"
   fi
-  ./koch "${command}" -d:release --parallelBuild:0 "$@"
+  ./koch "${command}" "$@" -d:release \
+    "--passC:${rpm_cflags}" \
+    "--passL:${rpm_ldflags}"
 }
 
-nim_compile_koch --noNimblePath --skipUserCfg --skipParentCfg --hints:off
-koch boot --skipUserCfg --skipParentCfg --hints:off
-koch toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
-koch atlas --skipUserCfg --skipParentCfg --hints:off
+run_koch boot --skipUserCfg --skipParentCfg --hints:off
+run_koch toolsNoExternal --skipUserCfg --skipParentCfg --hints:off
+run_koch atlas --skipUserCfg --skipParentCfg --hints:off
 
 bin/nim js -d:release --noNimblePath --skipUserCfg --skipParentCfg \
   --hints:off tools/dochack/dochack.nim
