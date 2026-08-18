@@ -10,7 +10,6 @@ Release:        %autorelease
 Summary:        Statically typed compiled systems programming language (development snapshot)
 License:        MIT
 URL:            https://nim-lang.org/
-Source0:        https://github.com/nim-lang/Nim/archive/refs/heads/devel.tar.gz#/nim-devel-%{version}.tar.gz
 
 ExclusiveArch:  x86_64 aarch64
 
@@ -32,22 +31,14 @@ This package tracks the development branch and is bootstrapped entirely from
 source. Nimble is not included.
 
 %prep
-%autosetup -n Nim-devel
+%autosetup -c -T -n Nim-devel
+git clone -q --depth 1 --branch devel https://github.com/nim-lang/Nim.git .
 
 %build
 %set_build_flags
 
-# Fetch exactly the csources commit selected by this Nim tree. Fetching the
-# commit directly avoids the shallow-clone failure in ci/funs.sh when the pin
-# is not the current tip of its configured branch.
-. config/build_config.txt
-git init -q "${nim_csourcesDir}"
-git -C "${nim_csourcesDir}" remote add origin "${nim_csourcesUrl}"
-git -C "${nim_csourcesDir}" fetch -q --depth 1 origin "${nim_csourcesHash}"
-git -C "${nim_csourcesDir}" checkout -q --detach FETCH_HEAD
-
 # csources_v3 appends its own bootstrap flags to CFLAGS. Keep RPM's flags out
-# of that bootstrap build, then restore them for the compiler and tools.
+# of that bootstrap build. The upstream helper fetches its pinned csources.
 rpm_cflags="${CFLAGS-}"
 rpm_ldflags="${LDFLAGS-}"
 export CFLAGS=
@@ -112,7 +103,9 @@ done
 # them beside nim; the public commands are owned by nimony-git.
 cp -a lib compiler %{buildroot}%{_libdir}/nim/
 cp -a dist/checksums dist/nimony %{buildroot}%{_libdir}/nim/dist/
-find %{buildroot}%{_libdir}/nim/dist -type d -name .git -prune -exec rm -rf {} +
+rm -rf \
+  %{buildroot}%{_libdir}/nim/dist/checksums/.git \
+  %{buildroot}%{_libdir}/nim/dist/nimony/.git
 
 install -m 0644 -t %{buildroot}%{_sysconfdir}/nim config/*
 cp -a doc %{buildroot}%{_datadir}/nim/

@@ -10,9 +10,7 @@ Release:        %autorelease
 Summary:        Nimony compiler and toolchain (development snapshot)
 License:        MIT
 URL:            https://github.com/nim-lang/nimony
-Source0:        https://github.com/nim-lang/nimony/archive/refs/heads/master.tar.gz#/nimony-master-%{version}.tar.gz
-Source1:        https://github.com/nim-lang/mimalloc/archive/refs/heads/master.tar.gz#/mimalloc-master.tar.gz
-Source2:        nimony-rpm-flags.nims
+Source0:        nimony-rpm-flags.nims
 
 BuildRequires:  gcc
 BuildRequires:  git
@@ -29,16 +27,12 @@ Nimony is a new Nim implementation under active development. This package
 tracks its master branch and includes the compiler's private supporting tools.
 
 %prep
-%autosetup -n nimony-master
-tar -xzf %{SOURCE1} -C vendor/mimalloc --strip-components=1
-
-# Hastur runs `git submodule update`, while Source0 is a tarball. An empty
-# repository is sufficient: mimalloc has already been populated from Source1.
-git init -q
+%autosetup -c -T -n nimony-master
+git clone -q --depth 1 https://github.com/nim-lang/nimony.git .
 
 # This build-only parent config is inherited by src/hastur.nim and by every
 # host-Nim compilation that hastur launches below.
-install -m 0644 %{SOURCE2} config.nims
+install -m 0644 %{SOURCE0} config.nims
 
 %build
 %set_build_flags

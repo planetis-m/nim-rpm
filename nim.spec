@@ -7,7 +7,6 @@ Release:        %autorelease
 Summary:        Statically typed compiled systems programming language
 License:        MIT
 URL:            https://nim-lang.org/
-Source0:        https://github.com/nim-lang/Nim/archive/refs/tags/v%{version}.tar.gz#/nim-%{version}.tar.gz
 
 ExclusiveArch:  x86_64 aarch64
 
@@ -26,18 +25,11 @@ concepts from languages such as Python, Ada, and Modula.
 This package is bootstrapped entirely from source. Nimble is not included.
 
 %prep
-%autosetup -n Nim-%{version}
+%autosetup -c -T -n Nim-%{version}
+git clone -q --depth 1 --branch v%{version} https://github.com/nim-lang/Nim.git .
 
 %build
 %set_build_flags
-
-# Fetch the exact csources commit selected by this release rather than relying
-# on ci/funs.sh's shallow clone of the configured branch tip.
-. config/build_config.txt
-git init -q "${nim_csourcesDir}"
-git -C "${nim_csourcesDir}" remote add origin "${nim_csourcesUrl}"
-git -C "${nim_csourcesDir}" fetch -q --depth 1 origin "${nim_csourcesHash}"
-git -C "${nim_csourcesDir}" checkout -q --detach FETCH_HEAD
 
 rpm_cflags="${CFLAGS-}"
 rpm_ldflags="${LDFLAGS-}"
@@ -100,7 +92,7 @@ done
 
 cp -a lib compiler %{buildroot}%{_libdir}/nim/
 cp -a dist/checksums %{buildroot}%{_libdir}/nim/dist/
-find %{buildroot}%{_libdir}/nim/dist -type d -name .git -prune -exec rm -rf {} +
+rm -rf %{buildroot}%{_libdir}/nim/dist/checksums/.git
 
 install -m 0644 -t %{buildroot}%{_sysconfdir}/nim config/*
 cp -a doc %{buildroot}%{_datadir}/nim/
