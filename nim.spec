@@ -1,12 +1,18 @@
 %global debug_package %{nil}
 %global _build_id_links none
 
+# csources_v3 (bootstrap compiler C sources) pinned per config/build_config.txt
+%global csources_commit eeab3ac46e93f10efda8e58c4db02b9438319d71
+
 Name:           nim
 Version:        2.2.10
 Release:        %autorelease
 Summary:        Statically typed compiled systems programming language
 License:        MIT
 URL:            https://nim-lang.org/
+
+# csources_v3 provides the generated C sources for the bootstrap compiler.
+Source0:        https://github.com/nim-lang/csources_v3/archive/%{csources_commit}.tar.gz#/csources_v3-%{csources_commit}.tar.gz
 
 ExclusiveArch:  x86_64 aarch64
 
@@ -28,6 +34,11 @@ This package is bootstrapped entirely from source. Nimble is not included.
 %autosetup -c -T -n Nim-%{version}
 git clone -q --depth 1 --branch v%{version} https://github.com/nim-lang/Nim.git .
 
+# csources_v3 is vendored as Source0 at the commit pinned in
+# config/build_config.txt; bump csources_commit when the tree does.
+mkdir -p csources_v3
+tar --strip-components=1 -xzf %{SOURCE0} -C csources_v3
+
 %build
 %set_build_flags
 
@@ -40,29 +51,25 @@ nimBuildCsourcesIfNeeded
 export CFLAGS="${rpm_cflags}"
 export LDFLAGS="${rpm_ldflags}"
 
+# nim reads CFLAGS from the environment (extccomp) but has no LDFLAGS env
+# path, so LDFLAGS must be forwarded explicitly via --passL.
 nim_compile_koch() {
-  if [ -n "${rpm_cflags}" ]; then
-    set -- "--passC:${rpm_cflags}" "$@"
-  fi
   if [ -n "${rpm_ldflags}" ]; then
     set -- "--passL:${rpm_ldflags}" "$@"
   fi
-  bin/nim c "$@" koch
+  bin/nim c "$@" -d:release koch
 }
 
-# koch() forwards the distro flags to the koch commands. `-d:release` must
-# stay first: koch boot only inserts the `c` command when its cmdLineRest
-# starts with '-', and parseopt single-quotes multi-word args like --passC.
+# koch() forwards LDFLAGS to the koch commands. `-d:release` must stay first:
+# koch boot only inserts the `c` command when its cmdLineRest starts with '-',
+# and parseopt single-quotes multi-word args like --passL.
 koch() {
   command="$1"
   shift
-  if [ -n "${rpm_cflags}" ]; then
-    set -- "--passC:${rpm_cflags}" "$@"
-  fi
   if [ -n "${rpm_ldflags}" ]; then
     set -- "--passL:${rpm_ldflags}" "$@"
   fi
-  ./koch "${command}" -d:release "$@"
+  ./koch "${command}" -d:release --parallelBuild:0 "$@"
 }
 
 nim_compile_koch --noNimblePath --skipUserCfg --skipParentCfg --hints:off
