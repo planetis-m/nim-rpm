@@ -33,14 +33,16 @@ tar -xzf %{SOURCE1} -C vendor/mimalloc --strip-components=1
 %build
 %set_build_flags
 
-# CFLAGS is consumed directly by Nim. Forward RPM's linker flags both while
-# compiling hastur and to every host-Nim tool build launched by hastur.
+# Pass matching compiler and linker flags to hastur and every host-Nim tool it
+# builds. Fedora's hardened linker flags require objects compiled as PIE/PIC.
 if [ -n "${LDFLAGS-}" ]; then
-  hastur_ldflags="--forward:--passL:\"${LDFLAGS}\""
-  nim c "--passL:${LDFLAGS}" -r src/hastur \
-    build all --release "${hastur_ldflags}"
+  hastur_flags="--forward:--passC:\"${CFLAGS}\" --passL:\"${LDFLAGS}\""
+  nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur \
+    build all --release "${hastur_flags}"
 else
-  nim c -r src/hastur build all --release
+  hastur_flags="--forward:--passC:\"${CFLAGS}\""
+  nim c "--passC:${CFLAGS}" -r src/hastur \
+    build all --release "${hastur_flags}"
 fi
 
 %install
