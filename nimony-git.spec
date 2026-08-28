@@ -34,7 +34,7 @@ git clone -q --depth 1 https://github.com/nim-lang/nimony.git .
 
 # Build hastur with Fedora's paired compiler and linker flags. Its child tool
 # builds use Hastur's normal upstream commands, just like Koch above.
-nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur build all --release
+nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur/hastur build all --release
 
 %install
 install -d \
