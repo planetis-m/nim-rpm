@@ -57,7 +57,7 @@ install -d \
 # All generated tools are installed privately because the compiler locates
 # them beside itself. Expose only the established user-facing commands.
 install -m 0755 bin/* -t %{buildroot}%{_libdir}/nimony/bin
-for tool in arkham dagon nifler nifmake nimony pnak; do
+for tool in dagon nifler nifmake nimony pnak; do
   ln -s "../%{_lib}/nimony/bin/${tool}" "%{buildroot}%{_bindir}/${tool}"
 done
 
@@ -82,7 +82,6 @@ install -m 0644 vendor/mimalloc/LICENSE \
 %files
 %license license.txt
 %doc README.md
-%{_bindir}/arkham
 %{_bindir}/dagon
 %{_bindir}/nifler
 %{_bindir}/nifmake
