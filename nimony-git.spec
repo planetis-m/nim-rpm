@@ -26,8 +26,17 @@ Nimony is a new Nim implementation under active development. This package
 tracks its master branch and includes the compiler's private supporting tools.
 
 %prep
-%autosetup -c -T -n nimony-master
+# The checkout must be named `nimony`: the sibling's nim.cfg reaches back into
+# it through a relative `../../../nimony/src/lib` path.
+%autosetup -c -T -n nimony
 git clone -q --depth 1 https://github.com/nim-lang/nimony.git .
+
+# arkham and nifasm are built from the sibling nativenif repo, which
+# `hastur build all` only picks up when that checkout lives next to Nimony.
+# Clone it here and put it on the commit the Nimony tree pins.
+git clone -q https://github.com/nim-lang/nativenif ../nativenif
+nativenif_commit=$(awk 'NR == 1 {print $1}' src/nativenif.commit)
+git -C ../nativenif checkout -q --detach "$nativenif_commit"
 
 %build
 %set_build_flags
