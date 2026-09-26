@@ -44,6 +44,7 @@ git -C ../nativenif checkout -q --detach "$nativenif_commit"
 # Build hastur with Fedora's paired compiler and linker flags. Its child tool
 # builds use Hastur's normal upstream commands, just like Koch above.
 nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur/hastur build all --release
+nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur/hastur build jorogumo --release
 
 %install
 install -d \
