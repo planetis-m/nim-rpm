@@ -35,8 +35,7 @@ git clone -q --depth 1 https://github.com/nim-lang/nimony.git .
 # `hastur build all` only picks up when that checkout lives next to Nimony.
 # Clone it here and put it on the commit the Nimony tree pins.
 git clone -q https://github.com/nim-lang/nativenif ../nativenif
-#nativenif_commit=$(awk 'NR == 1 {print $1}' src/nativenif.commit)
-nativenif_commit=9afa42470a508d11066b951a795576bf0a139159
+nativenif_commit=$(awk 'NR == 1 {print $1}' src/nativenif.commit)
 git -C ../nativenif checkout -q --detach "$nativenif_commit"
 
 %build
@@ -45,7 +44,6 @@ git -C ../nativenif checkout -q --detach "$nativenif_commit"
 # Build hastur with Fedora's paired compiler and linker flags. Its child tool
 # builds use Hastur's normal upstream commands, just like Koch above.
 nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur/hastur build all --release
-nim c "--passC:${CFLAGS}" "--passL:${LDFLAGS}" -r src/hastur/hastur build jorogumo --release
 
 %install
 install -d \
